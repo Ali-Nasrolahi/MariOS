@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export PREFIX="$CROSS_TOOLCHAIN_PATH"
+export TARGET=i686-elf
+export PATH="$PREFIX/bin:$PATH"
