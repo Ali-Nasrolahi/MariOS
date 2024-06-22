@@ -1,4 +1,7 @@
-[bits 16]
+bits 16
+
+%define CRLF 0xa, 0xd
+
 ; Prints a string
 ; [param] si -> pointer to message
 print:
@@ -25,8 +28,13 @@ print_crlf:
     pop ax
     ret
 
+; prints dx
 print_hex:
-    pusha
+    push ax
+    push bx
+    push cx
+    push si
+
     mov cx, 0
 .hex_loop:
     cmp cx, 4
@@ -49,37 +57,11 @@ print_hex:
     mov si, .HEX_OUT
     call print
 
-    popa
+    pop si
+    pop cx
+    pop bx
+    pop ax
     ret
 
 .HEX_OUT:
-    db '0x0000',0
-
-[bits 32] ; using 32-bit protected mode
-
-; this is how constants are defined
-VIDEO_MEMORY equ 0xb8000
-WHITE_ON_BLACK equ 0x0f ; the color byte for each character
-
-print32:
-    pusha
-    mov edx, VIDEO_MEMORY
-
-.print_string_pm_loop:
-    mov al, [ebx] ; [ebx] is the address of our character
-    mov ah, WHITE_ON_BLACK
-
-    cmp al, 0 ; check if end of string
-    je .print_string_pm_done
-
-    mov [edx], ax ; store character + attribute in video memory
-    add ebx, 1 ; next char
-    add edx, 2 ; next video memory position
-
-    jmp .print_string_pm_loop
-
-.print_string_pm_done:
-    popa
-    ret
-
-
+    db '0x0000', CRLF, 0

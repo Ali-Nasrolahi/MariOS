@@ -2,3 +2,6 @@
 *.elf
 *.map
 *.bin
+*.vscode
+*.lst
+*.img

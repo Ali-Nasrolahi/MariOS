@@ -1,0 +1,43 @@
+#!/bin/bash
+
+IMAGE="hdd.img"
+
+usage() {
+    echo -e "Usage: $(basename $0) <option>\n"
+    echo -e "\t--lo\n"
+    echo -e "\t--dlo\n"
+    echo -e "\t--mnt\n"
+    echo -e "\t--umnt\n"
+    exit -1
+}
+
+if [ $# -lt 1 ]; then
+    usage;
+fi
+
+case $1 in
+    --lo)
+        sudo losetup -P /dev/loop0 $IMAGE
+        ;;
+    --dlo)
+        sudo losetup -d /dev/loop0
+        ;;
+    --mnt)
+        sudo mkdir -p /mnt/loop0/p{1..4}        &&
+        sudo mount /dev/loop0p1 /mnt/loop0/p1   &&
+        sudo mount /dev/loop0p2 /mnt/loop0/p2   &&
+        sudo mount /dev/loop0p3 /mnt/loop0/p3   &&
+        sudo mount /dev/loop0p4 /mnt/loop0/p4
+        ;;
+    --umnt)
+        sudo umount /dev/loop0p4        &&
+        sudo umount /dev/loop0p3        &&
+        sudo umount /dev/loop0p2        &&
+        sudo umount /dev/loop0p1        &&
+        sudo rmdir /mnt/loop0/p{1..4}   &&
+        sudo rmdir /mnt/loop0/
+        ;;
+    *)
+        usage
+        ;;
+esac

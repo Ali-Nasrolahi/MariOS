@@ -1,0 +1,25 @@
+#!/bin/bash
+
+usage() {
+    echo -e "Usage: $(basename $0) <op>\n"
+    echo -e "\t--new <output_name> <count> [<skip count>], New file with size of <count> * 512 bytes\n"
+    echo -e "\t--cp <from> <to>, Copy bytes of <from> to <to> without truncating <to>\n"
+    exit -1
+}
+
+if [ $# -lt 3 ]; then
+    usage;
+fi
+
+case $1 in
+    --new)
+	    dd if=/dev/zero of=$2 bs=512 count=$3
+        ;;
+    --cp)
+        seek="${4:-0}"
+	    dd if=$2 of=$3 seek=$seek conv=notrunc
+        ;;
+    *)
+        usage
+        ;;
+esac
