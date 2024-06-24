@@ -6,13 +6,13 @@ include ../../conf/make/config.mk
 
 OUTPUT_IMG = hdd.img
 
-all: create-vdisk mbr core cboot
-
-fresh: clean all format-vdisk
+all: format-vdisk mbr core cboot
 	@$(MAKE) mount
+	@echo "Copying cboot to first partition of $(OUTPUT_IMG)"
 	@sudo cp cboot.bin /mnt/loop0/p1/cboot.bin
 	@$(MAKE) umount
-	@echo "Fresh setup completed!"
+
+fresh: clean all
 
 ################### BUILD ########################
 mbr: mbr.s
@@ -21,16 +21,18 @@ mbr: mbr.s
 
 	@echo "Copying $@ to $(OUTPUT_IMG)"
 	@$(DD) --cp mbr.bin $(OUTPUT_IMG) 2> /dev/null
+	@echo ""
 
 core: core.s
 	@$(ASM) -f bin $^ -o $@.bin
 	@echo "Copying $@ to $(OUTPUT_IMG)"
 	@$(DD) --cp $@.bin $(OUTPUT_IMG) 1 2> /dev/null
+	@echo ""
 
-cboot: cboot.o
+cboot: cboot.s.o cboot.o
 	$(LD) $(LDFLAGS) -T link.ld $^
 
-%.o: %.s
+%.s.o: %.s
 	$(ASM) $(ASMFLAGS) $^ -o $@
 
 %.o: %.c
@@ -68,12 +70,12 @@ format-vdisk: create-vdisk
 mount:
 	@$(DTOOLS) --lo
 	@$(DTOOLS) --mnt
-	@echo "Mounted"
+	@echo "Disk Mounted"
 
 umount:
 	@$(DTOOLS) --umnt
 	@$(DTOOLS) --dlo
-	@echo "Umounted"
+	@echo "Disk Umounted"
 
 run: all
 	$(QEMU) -hda $(OUTPUT_IMG)

@@ -13,6 +13,11 @@
 ;       - Initialize FAT fields to work with filesystem
 ;       - Find BOOT_BIN_FILENAME and load it
 ;
+;  Note:
+;       - CBoot would be loaded at CBOOT_ADDR.
+;       - From 0x0 until 0x7fff is considered for core usage,
+;       - anything beyond this address, can be used for cboot.
+;
 ; ##############################################################
 ;                           Core
 ; ##############################################################
@@ -21,7 +26,7 @@ org 0x0600
 bits 16
 
 PT_BASE_ADDR    equ (0x7c00 + 0x1be)    ; Address of MBR table beginning
-CBOOT_ADDR      equ (0x9e00)            ; boot.bin will be loaded in
+CBOOT_ADDR      equ (0x8e00)            ; boot.bin will be loaded in
 
 %undef DEBUG
 
@@ -128,6 +133,11 @@ LoadCBoot:
 
 Stage2:
 
+    jmp 0:CBOOT_ADDR
+
+    mov si, CBOOT_MESS
+    call print
+
 halt:
     cli
     hlt
@@ -147,4 +157,6 @@ NO_BOOTABLE_PT  db  'No bootable partition!', 0
 CBOOT_FILENAME      db 'CBOOT   BIN', 0
 ST2_NOT_FOUND       db 'Cannot find stage2 file!', 0
 
-times (1022 - $ + $$) db 0
+CBOOT_MESS  db 'CBoot messed up!!!', CRLF, 0
+
+times (1024 - $ + $$) db 0

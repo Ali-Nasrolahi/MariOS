@@ -4,14 +4,13 @@ OUTPUT(cboot.bin)
 
 SECTIONS
 {
-    . = 0x7c00;
+    . = 0x8e00;
     .bootsect :
     {
         *(.boot)
         *(.boot*)
     }
 
-    . = 0x7e00;
     .text :
     {
         . = ALIGN(512);

@@ -103,10 +103,10 @@ fat_determine_rootdir_len:
 ;     rootdir_len       = ((bpb_root_ent * 32) + (512 - 1)) / 512
 fat_load_rootdir:
 
-    ; Read 'rootdir_len' sectors from 'rootdir_sect_no' to 0:0x7e00
+    ; Read 'rootdir_len' sectors from 'rootdir_sect_no' to 0:FAT_BASE_ADDR
     mov eax, [VOL_BEGIN_SECT]
     add ax, [FAT_RGN_ROOT]
-    mov bx, 0x7e00
+    mov bx, FAT_BASE_ADDR
     mov cx, [FAT_ROOTDIR_LEN]
     mov dl, [bpb_drive_no]
     call disk_hdd_lba_read
