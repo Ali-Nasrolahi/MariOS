@@ -1,36 +1,44 @@
-[bits 16]
-gdt_start: ; don't remove the labels, they're needed to compute sizes and jumps
-    ; the GDT starts with a null 8-byte
-    dd 0x0 ; 4 byte
-    dd 0x0 ; 4 byte
+bits 16
 
-; GDT for code segment. base = 0x00000000, length = 0xfffff
-; for flags, refer to os-dev.pdf document, page 36
+; GDT Setup Overview
+;
+; Two segments has initialized, one for code and the other for data.
+; Bases are 0x0 and limits are 0xffff with granularity flag set for both.
+; Which indicates the size the Limit value is scaled by 4KiB blocks, by that
+; the segment will span the full 4 GiB address space in 32-bit mode.
+;
+; The only differnce between the two segments is E flag in access byte.
+;  Access Byte: P, S, RW ==> Enabled, DPL, DC, A ==> Disabled
+;  and E is enabled for gdt_code and disabled for gdt_data.
+;
+; Note:
+;   By standard first 8 bytes of gdt should be null and unsued, nevertheless
+;   we could just use it for GDT Descriptor instead.
+gdt_start:
+gdt_desc:
+    dw gdt_end - gdt_start - 1  ; Size of the table - 1, Why -1 ?
+                                ; refer to https://wiki.osdev.org/Global_Descriptor_Table#GDTR
+
+    dd gdt_start                ; Offset: The linear address of the GDT
+    dw 0x0                      ; rest of null bytes
+
+
 gdt_code:
-    dw 0xffff    ; segment length, bits 0-15
-    dw 0x0       ; segment base, bits 0-15
-    db 0x0       ; segment base, bits 16-23
-    db 10011010b ; flags (8 bits)
-    db 11001111b ; flags (4 bits) + segment length, bits 16-19
-    db 0x0       ; segment base, bits 24-31
+    dw 0xffff   ; Limit         (offset 00-15):(low 16 bits)
+    dw 0x0      ; Base          (offset 16-31):(low 16 bits)
+    db 0x0      ; Base          (offset 32-39):(next 8 bits)
+    db 0x9a     ; Access Byte   (offset 40-47)
+    db 0xc      ; Limit         (lower 4 bits for limit's higher 4 bits):(offset 48-51)
+                ; Flags         (higher 4 bits):(offset 52-55)
+    db 0x0      ; Base          (offset 56-63):(higher 8 bits)
 
-; GDT for data segment. base and length identical to code segment
-; some flags changed, again, refer to os-dev.pdf
 gdt_data:
-    dw 0xffff
-    dw 0x0
-    db 0x0
-    db 10010010b
-    db 11001111b
-    db 0x0
+    dw 0xffff   ; Limit         (offset 00-15):(low 16 bits)
+    dw 0x0      ; Base          (offset 16-31):(low 16 bits)
+    db 0x0      ; Base          (offset 32-39):(next 8 bits)
+    db 0x92     ; Access Byte   (offset 40-47)
+    db 0xc      ; Limit         (lower 4 bits for limit's higher 4 bits):(offset 48-51)
+                ; Flags         (higher 4 bits):(offset 52-55)
+    db 0x0      ; Base          (offset 56-63):(higher 8 bits)
 
 gdt_end:
-
-; GDT descriptor
-gdt_descriptor:
-    dw gdt_end - gdt_start - 1 ; size (16 bit), always one less of its true size
-    dd gdt_start ; address (32 bit)
-
-; define some constants for later use
-CODE_SEG equ gdt_code - gdt_start
-DATA_SEG equ gdt_data - gdt_start
