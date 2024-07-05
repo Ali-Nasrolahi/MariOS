@@ -22,9 +22,10 @@ bits 16
 
 %undef DEBUG
 
-global _start
-extern boot_main
+VIDEO_MEMORY            equ 0xb8000
+DEFAULT_TERMINAL_COLOR  equ 0x0f
 
+global _start
 section .boot
 
 _start:
@@ -65,32 +66,60 @@ _start:
     cli
     lgdt [gdt_desc]
     mov eax, cr0
-    or al, 0x1
+    or  eax, 0x1
     mov cr0, eax
 
-    jmp 0x8:pm_start ; 0x8 offset of first segment (aka. gdt_code)
+    jmp (gdt_code - gdt_start):pm_start
 
 halt:
     cli
     hlt
 
-bits 32
 
+bits 32
 pm_start:
 
 ; TODO setup protected mode.
-
-    mov ax, (0x8 * 2) ; Next entry in GDT (aka. gdt_data)
+    mov ax, (gdt_data - gdt_start)
     mov ds, ax
     mov ss, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
+    sti
 
+    mov sp, 0x8e00
+    mov bp, sp
 
-halt32:
+    mov esi, CBOOT_PM_MSG
+    call pm_print
+
+pm_halt:
     cli
     hlt
+
+pm_print:
+    push eax
+    push edi
+
+    xor eax, eax
+    mov ah, DEFAULT_TERMINAL_COLOR
+    mov edi, VIDEO_MEMORY
+
+.1:
+    lodsb
+    or al, al ; Have we reached end of string?
+    jz .2
+
+    mov [edi], al
+    inc edi
+    inc edi
+    jmp .1
+
+.2:
+    pop edi
+    pop eax
+    ret
 
 
 bits 16
@@ -175,6 +204,7 @@ a20_check:
 .BufferOverMB	db 0
 
 
-CBOOT_WELCOME   db CRLF, '[CBoot]: loaded.', CRLF, 0
+CBOOT_WELCOME   db CRLF, 'CBoot has loaded.', CRLF, 0
+CBOOT_PM_MSG    db 'CBoot switched to protected mode!', 0
 A20_DISABLED    db 'Gate-A20 is disabled', CRLF, 0
 CPUID_NOT_SUPP 	db 'CPUID instruct is not supported.', CRLF, 0

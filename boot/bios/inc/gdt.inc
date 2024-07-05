@@ -28,7 +28,7 @@ gdt_code:
     dw 0x0      ; Base          (offset 16-31):(low 16 bits)
     db 0x0      ; Base          (offset 32-39):(next 8 bits)
     db 0x9a     ; Access Byte   (offset 40-47)
-    db 0xc      ; Limit         (lower 4 bits for limit's higher 4 bits):(offset 48-51)
+    db 0xcf     ; Limit         (lower 4 bits for limit's higher 4 bits):(offset 48-51)
                 ; Flags         (higher 4 bits):(offset 52-55)
     db 0x0      ; Base          (offset 56-63):(higher 8 bits)
 
@@ -37,7 +37,7 @@ gdt_data:
     dw 0x0      ; Base          (offset 16-31):(low 16 bits)
     db 0x0      ; Base          (offset 32-39):(next 8 bits)
     db 0x92     ; Access Byte   (offset 40-47)
-    db 0xc      ; Limit         (lower 4 bits for limit's higher 4 bits):(offset 48-51)
+    db 0xcf     ; Limit         (lower 4 bits for limit's higher 4 bits):(offset 48-51)
                 ; Flags         (higher 4 bits):(offset 52-55)
     db 0x0      ; Base          (offset 56-63):(higher 8 bits)
 
