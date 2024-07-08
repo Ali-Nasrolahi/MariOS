@@ -28,6 +28,12 @@ DEFAULT_TERMINAL_COLOR  equ 0x0f
 global _start
 section .boot
 
+; #### External Symbols #####
+extern __bss_begin
+extern __bss_end
+extern _main
+; #### External Symbols #####
+
 _start:
 
     cli
@@ -79,7 +85,6 @@ halt:
 bits 32
 pm_start:
 
-; TODO setup protected mode.
     mov ax, (gdt_data - gdt_start)
     mov ds, ax
     mov ss, ax
@@ -90,9 +95,23 @@ pm_start:
 
     mov sp, 0x8e00
     mov bp, sp
+    cld
 
     mov esi, CBOOT_PM_MSG
     call pm_print
+
+    ; Clear .bss section
+    xor eax, eax
+    mov edi, __bss_begin
+    mov ecx, __bss_end
+    sub ecx, edi
+    shr ecx, 2
+    rep stosd
+
+
+pm_jmp_to_c:
+    jmp _main
+
 
 pm_halt:
     cli
