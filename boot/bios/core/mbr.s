@@ -20,11 +20,14 @@
 ; ##############################################################
 ;                       MBR Bootstrap
 ; ##############################################################
-org 0x7c00
+;org 0x7c00
 bits 16
 
 %undef DEBUG
 
+global _start
+
+section .all
 _start:
     ; Setup registers and stack
     cli
@@ -54,9 +57,9 @@ _start:
     cli
     hlt
 
-%include "inc/acpi.s"
-%include "inc/disk.s"
-%include "inc/print.s"
+%include "acpi.s"
+%include "disk.s"
+%include "print.s"
 
 CORE_MESS   db  'Core (stage 1.5) messed up!!', CRLF, 0
 DRIVE_NO    db  0x00
@@ -64,4 +67,4 @@ DRIVE_NO    db  0x00
 ; This piece of code will be placed in
 ; MBR sector and exactly before partition table.
 ; For more info check: https://wiki.osdev.org/MBR_(x86)
-times (0x1b8 - ($-$$)) db 0
+;times (0x1b8 - ($-$$)) db 0

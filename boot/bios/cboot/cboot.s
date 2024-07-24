@@ -142,11 +142,11 @@ pm_print:
 
 
 bits 16
-%include "inc/gdt.inc"
+%include "gdt.inc"
 
-%include "inc/acpi.s"
-%include "inc/disk.s"
-%include "inc/print.s"
+%include "acpi.s"
+%include "disk.s"
+%include "print.s"
 
 ; Checks if cpuid is supported. (credit to OSDev)
 ; Params:

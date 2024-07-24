@@ -22,7 +22,7 @@
 ;                           Core
 ; ##############################################################
 
-org 0x0600
+;org 0x0600
 bits 16
 
 PT_BASE_ADDR    equ (0x7c00 + 0x1be)    ; Address of MBR table beginning
@@ -30,7 +30,9 @@ CBOOT_ADDR      equ (0x8e00)            ; boot.bin will be loaded in
 
 %undef DEBUG
 
-%include "inc/bpb.inc"
+global _start
+
+%include "bpb.inc"
 
 
 _start:
@@ -142,10 +144,10 @@ halt:
     cli
     hlt
 
-%include "inc/acpi.s"
-%include "inc/disk.s"
-%include "inc/fat.s"
-%include "inc/print.s"
+%include "acpi.s"
+%include "disk.s"
+%include "fat.s"
+%include "print.s"
 
 WELCOME     db  'Welcome to MariOS', CRLF, 0
 
@@ -159,4 +161,4 @@ ST2_NOT_FOUND       db 'Cannot find stage2 file!', 0
 
 CBOOT_MESS  db 'CBoot messed up!!!', CRLF, 0
 
-times (1024 - $ + $$) db 0
+;times (1024 - $ + $$) db 0

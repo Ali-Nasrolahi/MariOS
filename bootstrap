@@ -2,4 +2,5 @@
 
 export PREFIX="$CROSS_TOOLCHAIN_PATH"
 export TARGET=i686-elf
-export PATH="$PREFIX/bin:$PATH"
+export TARGET_BIN_DIR="$PREFIX/bin"
+export PATH="$TARGET_BIN_DIR:$PATH"

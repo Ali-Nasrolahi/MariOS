@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+rm -rf build
+
+cmake -B build -D CMAKE_BUILD_TYPE=Debug
+echo -e  "Config Completed\n"
+
+cmake --build build -j8
+echo -e  "Build Completed\n"
