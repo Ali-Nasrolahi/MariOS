@@ -27,7 +27,7 @@ bits 16
 
 global _start
 
-section .all
+section .text
 _start:
     ; Setup registers and stack
     cli
@@ -67,4 +67,4 @@ DRIVE_NO    db  0x00
 ; This piece of code will be placed in
 ; MBR sector and exactly before partition table.
 ; For more info check: https://wiki.osdev.org/MBR_(x86)
-;times (0x1b8 - ($-$$)) db 0
+times (0x1b8 - ($-$$)) db 0

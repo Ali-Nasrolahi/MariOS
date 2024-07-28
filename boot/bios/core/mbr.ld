@@ -1,14 +1,21 @@
 ENTRY(_start)
+/* OUTPUT_ARCH(i386) */
 OUTPUT_FORMAT(binary)
 
 MEMORY {
-    RAM (wx) : ORIGIN = 0x7c00, LENGTH = 446
+    RAM (rwx) : ORIGIN = 0x7c00, LENGTH = 440
 }
 
 SECTIONS
 {
-    .all :
+    .text :
     {
-        *
+        *(.text)
+        *(.text*)
     } > RAM
+
+    /DISCARD/ : {
+        *(.debug*)
+        *(.comment*)
+    }
 }

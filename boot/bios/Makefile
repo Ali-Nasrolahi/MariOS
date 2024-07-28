@@ -77,10 +77,12 @@ umount:
 	@$(DTOOLS) --dlo
 	@echo "Disk Umounted"
 
-run: all
+run:
+	./makeme
 	$(QEMU) -hda $(OUTPUT_IMG)
 
-debug: all
+debug:
+	./makeme
 	$(QEMU) -S -s -hda $(OUTPUT_IMG) &
 	$(GDB) -ex "connect-to-qemu"
 

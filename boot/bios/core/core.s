@@ -32,8 +32,8 @@ CBOOT_ADDR      equ (0x8e00)            ; boot.bin will be loaded in
 
 global _start
 
+section .text
 %include "bpb.inc"
-
 
 _start:
 
