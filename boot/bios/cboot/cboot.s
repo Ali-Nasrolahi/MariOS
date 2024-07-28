@@ -108,10 +108,12 @@ pm_start:
     shr ecx, 2
     rep stosd
 
-
 pm_jmp_to_c:
     jmp _main
 
+
+    mov esi, CBOOT_PM_MSG
+    call pm_print
 
 pm_halt:
     cli

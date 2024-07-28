@@ -23,7 +23,6 @@ SECTIONS
     .bss :
     {
         *(COMMON)
-        *(.text)
     }
 
 }
