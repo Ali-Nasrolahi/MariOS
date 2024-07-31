@@ -35,7 +35,7 @@ set(CMAKE_CXX_LINK_EXECUTABLE
 set(compile_opts
     $<$<CONFIG:Debug>:-g -O0>
     $<$<COMPILE_LANGUAGE:ASM_NASM>:-f elf>
-    $<$<COMPILE_LANGUAGE:C,CXX>:-Wall -Wextra -ffreestanding -masm=intel -lgcc>
+    $<$<COMPILE_LANGUAGE:C,CXX>:-Wall -Wextra -pedantic -ffreestanding -masm=intel -lgcc>
     $<$<COMPILE_LANGUAGE:C>:-std=gnu99>
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions -fno-rtti>
 )

@@ -27,8 +27,8 @@ fresh: distclean config build_the_img build
 clean:
 	cmake --build build --target clean
 
-distclean:
-	$(RM) -r build/*
+distclean: clean
+	$(RM) -r build/* *.img
 
 mount:
 	@$(DTOOLS) --lo
