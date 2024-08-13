@@ -91,7 +91,7 @@ pm_start:
     mov es, ax
     mov fs, ax
     mov gs, ax
-    sti
+    ;; Don't enable interrupt for now -- sti
 
     mov sp, 0x8e00
     mov bp, sp
@@ -111,11 +111,6 @@ pm_start:
 pm_jmp_to_c:
     jmp _main
 
-
-    mov esi, CBOOT_PM_MSG
-    call pm_print
-
-pm_halt:
     cli
     hlt
 
@@ -142,6 +137,10 @@ pm_print:
     pop eax
     ret
 
+
+bits 32
+%include "x86.s"
+%include "ata.s"
 
 bits 16
 %include "gdt.inc"
@@ -223,6 +222,18 @@ a20_check:
 
 .BufferBelowMB:	db 0
 .BufferOverMB	db 0
+
+;
+; Detecting Upper Memory
+; https://wiki.osdev.org/Detecting_Memory_(x86)#BIOS_Function:_INT_0x15,_EAX_=_0xE820
+; *** TODO ***
+detect_mem:
+    mov eax, 0xe820
+    xor ebx, ebx
+    mov ecx, 24
+    mov edx, 0x534D4150
+    int 0x15
+    ret
 
 
 CBOOT_WELCOME   db CRLF, 'CBoot has loaded.', CRLF, 0

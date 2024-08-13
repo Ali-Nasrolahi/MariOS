@@ -25,7 +25,7 @@ build_the_img:
 fresh: distclean config build_the_img build
 
 clean:
-	cmake --build build --target clean
+	cmake --build build --target clean || true
 
 distclean: clean
 	$(RM) -r build/* *.img
