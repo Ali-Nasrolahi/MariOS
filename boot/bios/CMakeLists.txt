@@ -40,7 +40,13 @@ add_executable(core core/core.s)
 target_set_spec(core core/)
 
 # CBoot
-add_executable(cboot cboot/cboot.s cboot/cboot.c cboot/drivers.c)
+add_executable(cboot
+    cboot/cboot.s
+    cboot/cboot.c
+    cboot/print.c
+    cboot/ata.c
+)
+
 target_set_spec(cboot cboot/)
 
 

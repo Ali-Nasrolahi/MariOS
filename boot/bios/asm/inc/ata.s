@@ -46,7 +46,7 @@ ata_lba_read:
     xor bx, bx
     mov bl, cl      ; read cl sectors
     mul bx
-    mov ecx, eax    ; RCX is counter for INSW
+    mov ecx, eax    ; ecx is counter for INSW
     mov edx, 0x1f0  ; Data port, in and out
     rep insw        ; in to [edi]
 
@@ -95,11 +95,11 @@ ata_lba_write:
     test al, 8      ; DRQ Set when the drive has PIO data to transfer, or is ready to accept PIO data.
     jz .wait_for_DRQ
 
-    mov eax, 256    ; to read 256 words = 1 sector
+    mov eax, 256    ; to write 256 words = 1 sector
     xor bx, bx
     mov bl, cl      ; write cl sectors
     mul bx
-    mov ecx, eax    ; RCX is counter for INSW
+    mov ecx, eax    ; ecx is counter for INSW
     mov edx, 0x1f0  ; Data port, in and out
     mov esi, edi
     rep outsw        ; write on disk
