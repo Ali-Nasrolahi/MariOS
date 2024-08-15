@@ -5,3 +5,4 @@
 #define __VIDEO_MEMORY__MAP__ ((uint8_t *)(0xb8000))
 
 void puts(char *c);
+void clear_screen(void);

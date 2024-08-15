@@ -45,6 +45,7 @@ add_executable(cboot
     cboot/cboot.c
     cboot/print.c
     cboot/ata.c
+    cboot/fat.c
 )
 
 target_set_spec(cboot cboot/)
