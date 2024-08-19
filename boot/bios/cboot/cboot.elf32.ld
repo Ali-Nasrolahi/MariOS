@@ -1,6 +1,4 @@
 ENTRY(_start)
-OUTPUT_FORMAT(binary)
-OUTPUT(cboot.bin)
 
 SECTIONS
 {
@@ -47,8 +45,10 @@ SECTIONS
         __rodata_end = .;
     }
 
+/*
     /DISCARD/ : {
         *(.debug*)
         *(.comment*)
     }
+*/
 }

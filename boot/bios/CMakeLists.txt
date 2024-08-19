@@ -40,7 +40,10 @@ add_executable(core core/core.s)
 target_set_spec(core core/)
 
 # CBoot
-add_executable(cboot
+add_executable(cboot.elf32
+
+    cboot/x86.h
+
     cboot/cboot.s
     cboot/cboot.c
     cboot/print.c
@@ -48,7 +51,7 @@ add_executable(cboot
     cboot/fat.c
 )
 
-target_set_spec(cboot cboot/)
+target_set_spec(cboot.elf32 cboot/)
 
 
 # Post Build
@@ -76,12 +79,15 @@ add_custom_target(
 )
 
 add_custom_command(
-    TARGET core mbr cboot POST_BUILD
+    TARGET core mbr cboot.elf32 POST_BUILD
     COMMAND ${DD} --cp $<TARGET_FILE:mbr> ${HDD_DISK}     2> /dev/null
     COMMAND ${DD} --cp $<TARGET_FILE:core> ${HDD_DISK} 1  2> /dev/null
+    COMMAND ${CMAKE_OBJCOPY} -O binary
+    $<TARGET_FILE:cboot.elf32>
+    $<TARGET_FILE_DIR:cboot.elf32>/cboot
 	COMMAND ${DTOOLS} --lo
 	COMMAND ${DTOOLS} --mnt
-	COMMAND sudo cp $<TARGET_FILE:cboot> /mnt/loop0/p1/cboot.bin
+	COMMAND sudo cp $<TARGET_FILE_DIR:cboot.elf32>/cboot /mnt/loop0/p1/cboot.bin
 	COMMAND ${DTOOLS} --umnt
 	COMMAND ${DTOOLS} --dlo
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

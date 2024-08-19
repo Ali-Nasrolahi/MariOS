@@ -105,11 +105,14 @@ SelectPartition:
 
 LoadCBoot:
 
+    ;; Save boot partition
+    mov eax, [bx + 8]
+    mov [BOOTING_PARTITION_LBA], eax
+
     ; Init FAT stuff. Make sure following are set correctly:
     ;   - bx = loaded partition address
     ;   - bpb_drive_no
     ; Rest will be calculated in init method.
-
     call fat_init
     call fat_load_rootdir
     mov si, CBOOT_FILENAME
@@ -134,7 +137,8 @@ LoadCBoot:
     call print_hex
 
 Stage2:
-
+    ;; Pass booting partition addr to CBoot in ax
+    mov eax, [BOOTING_PARTITION_LBA]
     jmp 0:CBOOT_ADDR
 
     mov si, CBOOT_MESS
@@ -149,16 +153,16 @@ halt:
 %include "fat.s"
 %include "print.s"
 
-WELCOME     db  'Welcome to MariOS', CRLF, 0
+BOOTING_PARTITION_LBA dd 0
 
-TMP_BT_NO       db  0
-BOOTING_LABLE   db  '0. Bootable Partition at ', 0
-BOOTING_FROM    db  'Booting from....... ', 0
-NO_BOOTABLE_PT  db  'No bootable partition!', 0
+TMP_BT_NO       db 0
+BOOTING_LABLE   db '0. Bootable Partition at ', 0
+WELCOME         db 'Welcome to MariOS', CRLF, 0
+BOOTING_FROM    db 'Booting from....... ', 0
+NO_BOOTABLE_PT  db 'No bootable partition!', 0
+CBOOT_FILENAME  db 'CBOOT   BIN', 0
+ST2_NOT_FOUND   db 'Cannot find stage2 file!', 0
+CBOOT_MESS      db 'CBoot messed up!!!', CRLF, 0
 
-CBOOT_FILENAME      db 'CBOOT   BIN', 0
-ST2_NOT_FOUND       db 'Cannot find stage2 file!', 0
-
-CBOOT_MESS  db 'CBoot messed up!!!', CRLF, 0
 
 ;times (1024 - $ + $$) db 0

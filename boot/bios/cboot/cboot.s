@@ -37,6 +37,10 @@ extern _main
 _start:
 
     cli
+
+    ;; Restore then save boot partition
+    mov [BOOTING_PARTITION_LBA], eax
+
     ; Setup registers and stack
     xor ax, ax
     mov ss, ax
@@ -91,7 +95,7 @@ pm_start:
     mov es, ax
     mov fs, ax
     mov gs, ax
-    ;; Don't enable interrupt for now -- sti
+    ;; Don't enable interrupt in pm -- sti
 
     mov sp, 0x8e00
     mov bp, sp
@@ -108,8 +112,12 @@ pm_start:
     shr ecx, 2
     rep stosd
 
-pm_jmp_to_c:
-    jmp _main
+pm_call_cboot:
+    push dword [BOOTING_PARTITION_LBA]
+    call _main
+
+    mov esi, RETURN_TO_ASM
+    call pm_print
 
     cli
     hlt
@@ -141,6 +149,8 @@ pm_print:
 bits 32
 %include "x86.s"
 %include "ata.s"
+
+RETURN_TO_ASM db '[ATTENTION] CBoot Routine Has Returned!!', 0
 
 bits 16
 %include "gdt.inc"
@@ -235,6 +245,7 @@ detect_mem:
     int 0x15
     ret
 
+BOOTING_PARTITION_LBA dd 0
 
 CBOOT_WELCOME   db CRLF, 'CBoot has loaded.', CRLF, 0
 CBOOT_PM_MSG    db 'CBoot switched to protected mode!', 0

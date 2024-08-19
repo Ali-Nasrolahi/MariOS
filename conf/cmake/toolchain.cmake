@@ -39,10 +39,12 @@ set(compile_opts
     $<$<COMPILE_LANGUAGE:C>:-std=gnu99>
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions -fno-rtti>
 )
+
 set(link_opts
     -nostdlib
     $<$<COMPILE_LANGUAGE:ASM_NASM>:>
     $<$<COMPILE_LANGUAGE:C,CXX>:>
 )
+
 add_compile_options("${compile_opts}")
 add_link_options("${link_opts}")

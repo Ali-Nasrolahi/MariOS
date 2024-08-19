@@ -45,6 +45,12 @@ run: all
 
 debug: all
 	$(QEMU) -S -s -hda $(OUTPUT_IMG) &
-	$(GDB) -ex "connect-to-qemu"
+	$(GDB) \
+		-ex "set confirm off" \
+		-ex "connect-to-qemu" \
+		-ex "add-symbol-file build/cboot.elf32" \
+		-ex "break _main" \
+		-ex "continue" \
+		-ex "set confirm on"
 
 .PHONY: all config build clean

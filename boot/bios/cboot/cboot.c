@@ -1,7 +1,7 @@
 #include "fat.h"
 #include "print.h"
 
-void __attribute__((cdecl)) _main(void)
+void __attribute__((cdecl)) _main(uint32_t boot_partition_addr)
 {
     clear_screen();
     puts("Welcome to CBoot!\n");
@@ -9,7 +9,7 @@ void __attribute__((cdecl)) _main(void)
 
     /* Enable FAT driver */
     puts("Enabling FAT driver\n");
-    fat_init();
-    __asm__("cli");
-    __asm__("hlt");
+    fat_init(boot_partition_addr);
+
+    return;
 }
