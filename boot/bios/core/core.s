@@ -81,9 +81,13 @@ SelectPartition:
     dec cx
     jnz .lp1
 
+;; DEBUG Disalbe user input and use first partition
     ; Wait for user to choose a partition
-    mov ah, 0
-    int 0x16
+;    mov ah, 0
+;    int 0x16
+    mov al, '0'
+;;
+
 
     ; make the number's char to integer
     sub al, '0'
