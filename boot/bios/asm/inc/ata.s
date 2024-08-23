@@ -1,5 +1,8 @@
 bits 32
 
+global _ata_lba_read
+global _ata_lba_write
+
 ; Read from first hard disk (0x80).
 ; 28-bit PIO Mode: https://wiki.osdev.org/ATA_PIO_Mode#28_bit_PIO
 ; Based on : https://wiki.osdev.org/ATA_read/write_sectors#Read_in_LBA_mode
@@ -7,8 +10,15 @@ bits 32
 ;   eax :   LBA Address
 ;   cl  :   Sectors no. to read
 ;   edi :   Pointer to the destination buffer
-ata_lba_read:
-    pushfd
+; C Declaration:
+;   _ata_lba_read(uint32_t addr, void *buf, uint8_t sect);
+_ata_lba_read:
+    push ebp
+    mov ebp, esp
+
+    mov eax, [ebp + 8]
+    mov edi, [ebp + 12]
+    mov cl, [ebp + 16]
 
     mov ebx, eax    ; Store LBA address
 
@@ -50,18 +60,26 @@ ata_lba_read:
     mov edx, 0x1f0  ; Data port, in and out
     rep insw        ; in to [edi]
 
-    popfd
+    pop ebp
     ret
 
 ; Write to first hard disk (0x80).
 ; 28-bit PIO Mode: https://wiki.osdev.org/ATA_PIO_Mode#28_bit_PIO
-; Based on : https://wiki.osdev.org/ATA_read/write_sectors#Read_in_LBA_mode
+; Based on : https://wiki.osdev.org/ATA_read/write_sectors#ATA_write_sectors
 ; Params:
 ;   eax :   LBA Address
 ;   cl  :   Sectors no. to write
 ;   edi :   Pointer to the src buffer
-ata_lba_write:
-    pushfd
+; C Declaration:
+;   _ata_lba_write(uint32_t addr, void *buf, uint8_t sect);
+_ata_lba_write:
+    push ebp
+    mov ebp, esp
+
+    mov eax, [ebp + 8]
+    mov edi, [ebp + 12]
+    mov cl, [ebp + 16]
+
 
     mov ebx, eax    ; Store LBA address
 
@@ -104,5 +122,4 @@ ata_lba_write:
     mov esi, edi
     rep outsw        ; write on disk
 
-    popfd
     ret

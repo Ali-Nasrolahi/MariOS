@@ -6,7 +6,10 @@
  */
 #pragma once
 
+#include "ata.h"
 #include "x86.h"
+
+#define ROOTDIR_ENT_SIZE (32)
 
 typedef struct {
     // extended fat32 stuff
@@ -59,14 +62,37 @@ typedef struct {
 
 } __attribute__((packed)) fat_bpb_t;
 
+typedef struct {
+    char filename[8];
+    char extension[3];
+    uint8_t attributes;
+    uint8_t reserved;
+    uint8_t create_time_tenth;
+    uint16_t create_time;
+    uint16_t create_date;
+    uint16_t access_date;
+    uint16_t first_cluster_hi;
+    uint16_t modified_time;
+    uint16_t modified_date;
+    uint16_t first_cluster_lo;
+    uint32_t size;
+} __attribute__((__packed__)) fat_dir_ent_t;
+
+/*
+ * An array of FAT directory structure, with total size of a single sector.
+ * Helps to use one block read and retrieve multiple entries.
+ */
+typedef fat_dir_ent_t fat_dir_list[SECT_SIZE / ROOTDIR_ENT_SIZE] __attribute__((aligned(16)));
+
 typedef struct fat_metadata {
-    uint16_t size;
     uint32_t partition_lba;
     uint32_t total_sectors;
-    uint32_t root_dir_sectors;
-    uint32_t first_data_sector;
-    uint32_t data_sectors;
     uint32_t total_clusters;
+    uint32_t first_rootdir_sector;
+    uint32_t first_data_sector;
+    uint32_t rootdir_sectors;
+    uint32_t data_sectors;
+    uint32_t size;
 
 } fat_metadata_t;
 
