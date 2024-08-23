@@ -97,3 +97,6 @@ typedef struct fat_metadata {
 } fat_metadata_t;
 
 void fat_init(uint32_t p_lba);
+uint32_t fat_find_entry(const char *filename);
+
+void fat_print_files(void);
