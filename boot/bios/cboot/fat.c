@@ -18,7 +18,16 @@ static void fat_load_dir_list(fat_dir_list list, uint16_t offset)
     _ata_lba_read(fat_meta.partition_lba + fat_meta.first_rootdir_sector + offset, list, 1);
 }
 
-static void fat_iterate_rootdir(bool (*callback)(fat_dir_ent_t *ent))
+/*
+ * TODO
+ * I need more delicate approach to remove repeated iteration code.
+ * Callbacks needs to more generic, I need to ba ablate to pass list of args
+ * to them (maybe by va_list and forwarding args from iterator to callbacks).
+ *
+ */
+#if 0
+
+static fat_dir_ent_t fat_iterate_rootdir(bool (*callback)(fat_dir_ent_t *ent))
 {
     fat_dir_list list;
     uint8_t off = 0;
@@ -26,14 +35,15 @@ static void fat_iterate_rootdir(bool (*callback)(fat_dir_ent_t *ent))
 next_list:
     fat_load_dir_list(list, off++);
     for (size_t i = 0; i < sizeof(list) / sizeof(*list) && list[i].filename[0]; ++i) {
-        if (!callback(&list[i]))
-            return;
+        if (callback(&list[i]) == FAT_ITER_CNTRL_BREAK)
+            return list[i];
     }
 
     if (list[sizeof(list) / sizeof(*list) - 1].filename[0])
         goto next_list;
-}
 
+    return (fat_dir_ent_t){0};
+}
 static bool fat_print_files_cb(fat_dir_ent_t *ent)
 {
     /* Ignore long file names and empty entries*/
@@ -41,8 +51,23 @@ static bool fat_print_files_cb(fat_dir_ent_t *ent)
         puts(ent->filename);
         puts("\n");
     }
-    return true;
+
+    return FAT_ITER_CNTRL_CONT;
 }
+
+static bool fat_find_file_cb(fat_dir_ent_t *ent)
+{
+    /* Ignore long file names and empty entries*/
+    if (_nth_byte_of(ent, 11) != 0xf && ((unsigned char)ent->filename[0]) != 0xe5) {
+        puts(ent->filename);
+        puts("\n");
+    }
+
+    return FAT_ITER_CNTRL_CONT;
+}
+
+void fat_print_files() { fat_iterate_rootdir(fat_print_files_cb); }
+#endif
 
 void fat_init(uint32_t p_lba)
 {
@@ -73,6 +98,23 @@ void fat_init(uint32_t p_lba)
     fat_meta.first_rootdir_sector = fat_meta.first_data_sector - fat_meta.rootdir_sectors;
 }
 
-uint32_t fat_find_entry(const char *filename) { return 0; }
+int32_t fat_find_entry(const char *filename)
+{
+    static fat_dir_list list;
+    uint8_t off = 0;
 
-void fat_print_files() { fat_iterate_rootdir(fat_print_files_cb); }
+next_list:
+    fat_load_dir_list(list, off++);
+    /* TODO FIX comparaison bug */
+    for (size_t i = 0; i < sizeof(list) / sizeof(*list) && list[i].filename[0]; ++i) {
+        if (!strncmp(((char *)&(list[i])), filename, 11))
+            // if (!strncmp(list[i].filename, filename, 8) &&
+            //  !strncmp(list[i].extension, filename + 8 /* extension part*/, 3))
+            return (list[i].first_cluster_hi << 16) | list[i].first_cluster_lo;
+    }
+
+    if (list[sizeof(list) / sizeof(*list) - 1].filename[0])
+        goto next_list;
+
+    return -1;
+}

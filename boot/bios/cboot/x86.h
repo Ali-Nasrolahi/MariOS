@@ -28,7 +28,12 @@ static inline void *memset(void *b, int val, size_t count)
 
 static inline int strcmp(const char *a, const char *b)
 {
-    while (*a && *a == *b && ++a && ++b)
-        ;
-    return (int)(unsigned char)(*a) - (int)(unsigned char)(*b);
+    while (*a && *a == *b && ++a && ++b);
+    return *a ? (unsigned char)(*a) - (unsigned char)(*b) : 0;
+}
+
+static inline int strncmp(const char *a, const char *b, size_t size)
+{
+    while (--size && *a && *a == *b && ++a && ++b);
+    return *a ? (unsigned char)(*a) - (unsigned char)(*b) : 0;
 }

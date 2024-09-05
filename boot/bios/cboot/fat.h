@@ -9,7 +9,9 @@
 #include "ata.h"
 #include "x86.h"
 
-#define ROOTDIR_ENT_SIZE (32)
+#define FAT_ROOTDIR_ENT_SIZE (32)
+#define FAT_ITER_CNTRL_CONT (true)
+#define FAT_ITER_CNTRL_BREAK (false)
 
 typedef struct {
     // extended fat32 stuff
@@ -82,7 +84,7 @@ typedef struct {
  * An array of FAT directory structure, with total size of a single sector.
  * Helps to use one block read and retrieve multiple entries.
  */
-typedef fat_dir_ent_t fat_dir_list[SECT_SIZE / ROOTDIR_ENT_SIZE] __attribute__((aligned(16)));
+typedef fat_dir_ent_t fat_dir_list[SECT_SIZE / FAT_ROOTDIR_ENT_SIZE] __attribute__((aligned(16)));
 
 typedef struct fat_metadata {
     uint32_t partition_lba;
@@ -97,6 +99,15 @@ typedef struct fat_metadata {
 } fat_metadata_t;
 
 void fat_init(uint32_t p_lba);
-uint32_t fat_find_entry(const char *filename);
 
-void fat_print_files(void);
+/**
+ * @brief Finds the first cluster number of desired file
+ *
+ * @param full_filename should be formatted as stated in FAT spec. 8 bytes filename and 3 bytes
+ * extension; all in uppercase.
+ * @return int32_t positive number if file exits and has data; 0 if file is empty and -1 if not
+ * found.
+ */
+int32_t fat_find_entry(const char *full_filename);
+
+int32_t fat_load_cls_chain(uint32_t clsno, void *dst, size_t size);

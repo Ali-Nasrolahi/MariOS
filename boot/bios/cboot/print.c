@@ -58,17 +58,17 @@ skip_writing_on_screen:
     __update_cursor(_cursor.x, _cursor.y);
 }
 
+void putc(char c) { __putc(c); }
+
 void puts(char *c)
 {
-    while (*c)
-        __putc(*c++);
+    while (*c) putc(*c++);
 }
 
 void clear_screen()
 {
     uint16_t pixels = __DISPLAY_HEIGHT__ * __DISPLAY_WIDTH__;
-    while (pixels--)
-        __putc(' ');
+    while (pixels--) __putc(' ');
     *((uint16_t *)&_cursor) = 0;
     __enable_cursor(0, 15);
     __update_cursor(0, 0);
