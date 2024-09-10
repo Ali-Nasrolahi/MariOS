@@ -9,9 +9,18 @@
 #include "ata.h"
 #include "x86.h"
 
-#define FAT_ROOTDIR_ENT_SIZE (32)
-#define FAT_ITER_CNTRL_CONT (true)
+#define FAT_ROOTDIR_ENT_SIZE      (32)
+#define FAT_CLUSTER_SIZE_IN_BYTES (8 * SECT_SIZE)
+
+#define FAT_ITER_CNTRL_CONT  (true)
 #define FAT_ITER_CNTRL_BREAK (false)
+
+enum fat_load_cls_chain_status_e {
+    FAT_SUCCESSFUL_LOAD,
+    FAT_SMALL_BUFFER,
+    FAT_BAD_CLUSTER,
+    FAT_CORRUPT_CLUSTER,
+};
 
 typedef struct {
     // extended fat32 stuff
@@ -90,10 +99,17 @@ typedef struct fat_metadata {
     uint32_t partition_lba;
     uint32_t total_sectors;
     uint32_t total_clusters;
+
+    /* First sector of each region */
+    uint32_t first_fat_sector;
     uint32_t first_rootdir_sector;
     uint32_t first_data_sector;
+
+    /* Length of each region */
+    uint32_t fat_sectors;
     uint32_t rootdir_sectors;
     uint32_t data_sectors;
+
     uint32_t size;
 
 } fat_metadata_t;
@@ -109,5 +125,12 @@ void fat_init(uint32_t p_lba);
  * found.
  */
 int32_t fat_find_entry(const char *full_filename);
-
-int32_t fat_load_cls_chain(uint32_t clsno, void *dst, size_t size);
+/**
+ * @brief Load a cluster chain into destination
+ *
+ * @param clsno Entry cluster number
+ * @param dst destination buffer
+ * @param size_in_cluster size of buffer, should be a multiple of cluster size.
+ * @return int8_t 0 on success -1 on error
+ */
+uint8_t fat_load_cls_chain(uint32_t clsno, void *dst, size_t size_in_cluster);
