@@ -72,12 +72,9 @@ next_list:
 
 uint8_t fat_load_cls_chain(uint32_t clsno, void *dst, size_t size_in_cluster)
 {
-    static uint32_t s_cls;
     uint8_t __attribute__((aligned(16))) fat_table[1 * SECT_SIZE];
     uint8_t fat_sect = fat_meta.first_fat_sector + (clsno * 2 / SECT_SIZE);
     uint8_t ent_offset = (clsno * 2) % SECT_SIZE;
-
-    s_cls = clsno;
 
     if (!size_in_cluster /* not enough space left */) return FAT_SMALL_BUFFER;
     if (clsno < 3 /* Wrong cluster index */) return FAT_BAD_CLUSTER;
@@ -92,8 +89,6 @@ uint8_t fat_load_cls_chain(uint32_t clsno, void *dst, size_t size_in_cluster)
     /* Load FAT table to determine next step */
     _ata_lba_read(fat_meta.partition_lba + fat_sect, fat_table, 1);
     clsno = *(uint16_t *)&fat_table[ent_offset];
-
-    s_cls = clsno;
 
     if (clsno >= 0xFFF8 /* last cluster */) return FAT_SUCCESSFUL_LOAD;
     else if (clsno == 0xFFF7 /* bad cluster */) return FAT_CORRUPT_CLUSTER;

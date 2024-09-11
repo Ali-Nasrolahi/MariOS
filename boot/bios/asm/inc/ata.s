@@ -47,21 +47,61 @@ _ata_lba_read:
     mov al, 0x20    ; Read with retry (https://wiki.osdev.org/ATA_Command_Matrix)
     out dx, al
 
-.wait_for_DRQ:
-    in al, dx       ; Status Register (I/O base + 7)
-    test al, 8      ; DRQ Set when the drive has PIO data to transfer, or is ready to accept PIO data.
-    jz .wait_for_DRQ
+    mov ebx, ecx    ; Store sect no. in ebx
 
-    mov eax, 256    ; to read 256 words = 1 sector
-    xor bx, bx
-    mov bl, cl      ; read cl sectors
-    mul bx
-    mov ecx, eax    ; ecx is counter for INSW
-    mov edx, 0x1f0  ; Data port, in and out
-    rep insw        ; in to [edi]
+    ; ignore the error bit for the first 4 status reads
+    ; ie. implement 400ns delay on ERR only
+    ; wait for BSY clear and DRQ set
+    mov ecx, 4
+.lp1:
+    in al, dx           ; grab a status byte
+    test al, 0x80       ; BSY flag set?
+    jne short .retry
+    test al, 8          ; DRQ set?
+    jne short .data_rdy
+.retry:
+    dec ecx
+    jg short .lp1
 
+; need to wait some more
+; loop until BSY clears or ERR sets (error exit if ERR sets)
+.pior_l:
+    in al, dx           ; grab a status byte
+    test al, 0x80       ; BSY flag set?
+    jne short .pior_l   ; (all other flags are meaningless if BSY is set)
+    test al, 0x21       ; ERR or DF set?
+    jne short .fail
+
+.data_rdy:
+    ; if BSY and ERR are clear then DRQ must be set
+    ; go and read the data
+    sub dl, 7   ; read from data port (ie. 0x1f0)
+    mov cx, 256
+    rep insw    ; gulp one 512b sector into edi
+    or dl, 7    ; "point" dx back at the status register
+    in al, dx   ; delay 400ns to allow drive to set new values of BSY and DRQ
+    in al, dx
+    in al, dx
+    in al, dx
+
+    ; After each DRQ data block it is mandatory to either:
+    ; receive and ack the IRQ -- or poll the status port all over again
+    dec ebx         ; decrement the "sectors to read" count
+    test bl, bl     ; check if the low byte just turned 0 (more sectors to read?)
+    jne short .pior_l
+
+    sub dx, 7       ; "point" dx back at the base IO port, so it's unchanged
+
+    ; "test" sets the zero flag for a "success" return
+    ; also clears the carry flag
+    test al, 0x21       ; test the last status ERR bits
+    je short .done
+.fail:
+    stc
+.done:
     pop ebp
     ret
+
 
 ; Write to first hard disk (0x80).
 ; 28-bit PIO Mode: https://wiki.osdev.org/ATA_PIO_Mode#28_bit_PIO
@@ -122,4 +162,24 @@ _ata_lba_write:
     mov esi, edi
     rep outsw        ; write on disk
 
+    pop ebp
+    ret
+
+; do a singletasking PIO ata "software reset" with DCR in dx
+srst_ata_st:
+    push eax
+    mov al, 4
+    out dx, al          ; do a "software reset" on the bus
+    xor eax, eax
+    out dx, al          ; reset the bus to normal operation
+    in al, dx           ; it might take 4 tries for status bits to reset
+    in al, dx           ; ie. do a 400ns delay
+    in al, dx
+    in al, dx
+.rdylp:
+    in al, dx
+    and al, 0xc0            ; check BSY and RDY
+    cmp al, 0x40            ; want BSY clear and RDY set
+    jne short .rdylp
+    pop eax
     ret

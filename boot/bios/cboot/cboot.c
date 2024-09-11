@@ -1,9 +1,10 @@
 #include "fat.h"
 #include "print.h"
 
-uint8_t file_buff[FAT_CLUSTER_SIZE_IN_BYTES * 3];
+void* buff = (void*)0x00100000;
 void __attribute__((cdecl)) _main(uint32_t boot_partition_addr)
 {
+    /* Welcome */
     clear_screen();
     puts("Welcome to CBoot!\n");
     puts("\nInitializing the system\n");
@@ -12,12 +13,9 @@ void __attribute__((cdecl)) _main(uint32_t boot_partition_addr)
     puts("Enabling FAT driver\n");
     fat_init(boot_partition_addr);
 
-    uint32_t clsno = fat_find_entry("CBOOT   BIN");
-    putc('0' + clsno);
-
-    /* TODO fix load bug */
-    if (fat_load_cls_chain(clsno, file_buff, 3) == FAT_SUCCESSFUL_LOAD)
-        puts("file successfully loaded\n");
+    /* Load the kernel */
+    if (fat_load_cls_chain(fat_find_entry("CBOOT   BIN"), buff, 10) == FAT_SUCCESSFUL_LOAD)
+        puts("Kernel loaded successfully\n");
 
     return;
 }
