@@ -2,6 +2,7 @@ bits 32
 
 global _ata_lba_read
 global _ata_lba_write
+global _ata_software_reset
 
 ; Read from first hard disk (0x80).
 ; 28-bit PIO Mode: https://wiki.osdev.org/ATA_PIO_Mode#28_bit_PIO
@@ -11,7 +12,7 @@ global _ata_lba_write
 ;   cl  :   Sectors no. to read
 ;   edi :   Pointer to the destination buffer
 ; C Declaration:
-;   _ata_lba_read(uint32_t addr, void *buf, uint8_t sect);
+;   int32_t _ata_lba_read(uint32_t addr, void *buf, uint8_t sect);
 _ata_lba_read:
     push ebp
     mov ebp, esp
@@ -95,9 +96,10 @@ _ata_lba_read:
     ; "test" sets the zero flag for a "success" return
     ; also clears the carry flag
     test al, 0x21       ; test the last status ERR bits
+    xor eax, eax
     je short .done
 .fail:
-    stc
+    mov eax, 1
 .done:
     pop ebp
     ret
@@ -111,7 +113,7 @@ _ata_lba_read:
 ;   cl  :   Sectors no. to write
 ;   edi :   Pointer to the src buffer
 ; C Declaration:
-;   _ata_lba_write(uint32_t addr, void *buf, uint8_t sect);
+;   int32_t _ata_lba_write(uint32_t addr, void *buf, uint8_t sect);
 _ata_lba_write:
     push ebp
     mov ebp, esp
@@ -148,25 +150,68 @@ _ata_lba_write:
     mov al, 0x30    ; Write with retry (https://wiki.osdev.org/ATA_Command_Matrix)
     out dx, al
 
-.wait_for_DRQ:
-    in al, dx       ; Status Register (I/O base + 7)
-    test al, 8      ; DRQ Set when the drive has PIO data to transfer, or is ready to accept PIO data.
-    jz .wait_for_DRQ
+    mov ebx, ecx    ; Store sect no. in ebx
 
-    mov eax, 256    ; to write 256 words = 1 sector
-    xor bx, bx
-    mov bl, cl      ; write cl sectors
-    mul bx
-    mov ecx, eax    ; ecx is counter for INSW
-    mov edx, 0x1f0  ; Data port, in and out
+    ; ignore the error bit for the first 4 status reads
+    ; ie. implement 400ns delay on ERR only
+    ; wait for BSY clear and DRQ set
+    mov ecx, 4
+.lp1:
+    in al, dx           ; grab a status byte
+    test al, 0x80       ; BSY flag set?
+    jne short .retry
+    test al, 8          ; DRQ set?
+    jne short .data_rdy
+.retry:
+    dec ecx
+    jg short .lp1
+
+; need to wait some more
+; loop until BSY clears or ERR sets (error exit if ERR sets)
+.pior_l:
+    in al, dx           ; grab a status byte
+    test al, 0x80       ; BSY flag set?
+    jne short .pior_l   ; (all other flags are meaningless if BSY is set)
+    test al, 0x21       ; ERR or DF set?
+    jne short .fail
+
+.data_rdy:
+    ; if BSY and ERR are clear then DRQ must be set
+    ; go and write the data
+    sub dl, 7   ; write to data port (ie. 0x1f0)
+    mov cx, 256
     mov esi, edi
-    rep outsw        ; write on disk
+    rep outsw
+    or dl, 7
+    in al, dx
+    in al, dx
+    in al, dx
+    in al, dx
 
+    ; After each DRQ data block it is mandatory to either:
+    ; receive and ack the IRQ -- or poll the status port all over again
+    dec ebx         ; decrement the "sectors to write" count
+    test bl, bl     ; check if the low byte just turned 0 (more sectors to read?)
+    jne short .pior_l
+
+    sub dx, 7       ; "point" dx back at the base IO port, so it's unchanged
+
+    ; "test" sets the zero flag for a "success" return
+    ; also clears the carry flag
+    test al, 0x21       ; test the last status ERR bits
+    xor eax, eax
+    je short .done
+.fail:
+    mov eax, 1
+.done:
     pop ebp
     ret
 
 ; do a singletasking PIO ata "software reset" with DCR in dx
-srst_ata_st:
+_ata_software_reset:
+    push ebp
+    mov ebp, esp
+
     push eax
     mov al, 4
     out dx, al          ; do a "software reset" on the bus
@@ -182,4 +227,6 @@ srst_ata_st:
     cmp al, 0x40            ; want BSY clear and RDY set
     jne short .rdylp
     pop eax
+
+    pop ebp
     ret
