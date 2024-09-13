@@ -1,8 +1,3 @@
-#ifndef KERNEL_H
-#define KERNEL_H
+#pragma once
 
 #include <stdint.h>
-
-void kmain(void);
-
-#endif /* KERNEL_H */

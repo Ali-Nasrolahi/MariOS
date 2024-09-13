@@ -1,18 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
-
-set(CMAKE_TOOLCHAIN_FILE ../../conf/cmake/toolchain.cmake)
-
-project(core ASM_NASM C CXX)
-
-set(CMAKE_VERBOSE_MAKEFILE n)
-
-# Tools
-set(HDD_DISK hdd.img)
-set(FDA_DISK floppy.img)
-
-set(DD ../../tools/dd)
-set(DTOOLS ../../tools/disk-tools)
-
+# Helper function for setting build options
 function(target_set_spec tgt dir)
     target_compile_options(
         ${tgt}
@@ -41,9 +27,10 @@ target_set_spec(core core/)
 
 # CBoot
 add_executable(cboot.elf32
-
+    ## Headers
     cboot/x86.h
 
+    ## Sources
     cboot/cboot.s
     cboot/cboot.c
     cboot/print.c
@@ -53,31 +40,6 @@ add_executable(cboot.elf32
 
 target_set_spec(cboot.elf32 cboot/)
 
-
-# Post Build
-add_custom_target(
-    ${HDD_DISK}
-    COMMAND ${DD} --new ${HDD_DISK} 2097152
-    COMMAND sfdisk -f ${HDD_DISK} < misc/ptable.bak > /dev/null
-    COMMAND ${DTOOLS} --lo
-	COMMAND sudo mkfs.fat -F 16 /dev/loop0p1 > /dev/null
-	COMMAND sudo mkfs.fat -F 16 /dev/loop0p2 > /dev/null
-	COMMAND sudo mkfs.fat -F 16 /dev/loop0p3 > /dev/null
-	COMMAND sudo mkfs.fat -F 16 /dev/loop0p4 > /dev/null
-    COMMAND ${DTOOLS} --dlo
-    DEPENDS misc/ptable.bak
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Creating ${HDD_DISK}, may take some time..."
-)
-
-add_custom_target(
-    ${FDA_DISK}
-    COMMAND ${DD} --new ${FDA_DISK} 2880
-	COMMAND mkfs.fat -F 12 -n "MARIOS" ${FDA_DISK}  > /dev/null
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Creating ${FDA_DISK}, may take some time..."
-)
-
 add_custom_command(
     TARGET core mbr cboot.elf32 POST_BUILD
     COMMAND ${DD} --cp $<TARGET_FILE:mbr> ${HDD_DISK}     2> /dev/null
@@ -85,11 +47,10 @@ add_custom_command(
     COMMAND ${CMAKE_OBJCOPY} -O binary
     $<TARGET_FILE:cboot.elf32>
     $<TARGET_FILE_DIR:cboot.elf32>/cboot
-	COMMAND ${DTOOLS} --lo
-	COMMAND ${DTOOLS} --mnt
+	COMMAND ${DTOOLS} --lo ${HDD_DISK}
+	COMMAND ${DTOOLS} --mnt ${HDD_DISK}
 	COMMAND sudo cp $<TARGET_FILE_DIR:cboot.elf32>/cboot /mnt/loop0/p1/cboot.bin
-	COMMAND ${DTOOLS} --umnt
-	COMMAND ${DTOOLS} --dlo
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Writing bootloader to ${HDD_DISK}"
+	COMMAND ${DTOOLS} --umnt ${HDD_DISK}
+	COMMAND ${DTOOLS} --dlo ${HDD_DISK}
+    COMMENT "Copying bootloader to ${HDD_DISK}"
 )

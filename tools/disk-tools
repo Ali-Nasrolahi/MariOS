@@ -1,9 +1,9 @@
 #!/bin/bash
 
-IMAGE="hdd.img"
+IMAGE=${2:-"hdd.img"}
 
 usage() {
-    echo -e "Usage: $(basename $0) <option>\n"
+    echo -e "Usage: $(basename $0) <option> [image location]\n"
     echo -e "\t--lo\n"
     echo -e "\t--dlo\n"
     echo -e "\t--mnt\n"

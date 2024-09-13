@@ -1,3 +1,3 @@
 #include "kernel.h"
 
-void kmain() {}
+void __attribute__((cdecl)) _kmain() {}

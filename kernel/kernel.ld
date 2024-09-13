@@ -1,28 +1,35 @@
-ENTRY(kmain)
-OUTPUT_FORMAT(binary)
+ENTRY(_kmain)
 
 SECTIONS
 {
-    . = 0x1000;
-
     .text :
     {
-        *(.text)
-    }
+        __text_begin = .;
 
-    .rodata :
-    {
-        *(.rodata)
+        *(.text)
+        *(.text*)
+
+        __text_end = .;
     }
 
     .data :
     {
-        *(.bss)
+        __data_begin = .;
+        *(.data)
+        __data_end = .;
     }
 
     .bss :
     {
-        *(COMMON)
+        __bss_begin = .;
+        *(.bss)
+        __bss_end = .;
     }
 
+    .rodata :
+    {
+        __rodata_begin = .;
+        *(.rodata)
+        __rodata_end = .;
+    }
 }
