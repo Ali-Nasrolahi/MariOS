@@ -6,3 +6,5 @@ build
 *.vscode
 *.lst
 *.img
+.vscode
+.cache

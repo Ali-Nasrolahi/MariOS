@@ -3,7 +3,7 @@ function(target_set_spec tgt dir)
     target_compile_options(
         ${tgt}
         PRIVATE
-        $<$<COMPILE_LANGUAGE:ASM_NASM>:-I${CMAKE_CURRENT_SOURCE_DIR}/asm/inc>
+        $<$<COMPILE_LANGUAGE:ASM_NASM>:-I${CMAKE_CURRENT_SOURCE_DIR}/asm>
     )
     set_target_properties(${tgt}
         PROPERTIES LINK_DEPENDS
@@ -49,7 +49,7 @@ add_custom_command(
     $<TARGET_FILE_DIR:cboot.elf32>/cboot
 	COMMAND ${DTOOLS} --lo ${HDD_DISK}
 	COMMAND ${DTOOLS} --mnt ${HDD_DISK}
-	COMMAND sudo cp $<TARGET_FILE_DIR:cboot.elf32>/cboot /mnt/loop0/p1/cboot.bin
+	COMMAND sudo cp $<TARGET_FILE_DIR:cboot.elf32>/cboot /mnt/${LOOP}/p1/cboot.bin
 	COMMAND ${DTOOLS} --umnt ${HDD_DISK}
 	COMMAND ${DTOOLS} --dlo ${HDD_DISK}
     COMMENT "Copying bootloader to ${HDD_DISK}"

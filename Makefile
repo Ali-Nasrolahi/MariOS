@@ -1,7 +1,7 @@
 # TODO:
 # 	- Create a target for 'ptable.bak'
 #	- Clean up the partitioning and disk creation
-QEMU		?= qemu-system-x86_64
+QEMU		?= qemu-kvm
 GDB			?= gdb
 OUTPUT_IMG	:= build/img/hdd.img
 IMG_TARGET	:= hdd.img

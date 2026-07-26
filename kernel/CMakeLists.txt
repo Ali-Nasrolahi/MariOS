@@ -15,7 +15,7 @@ add_custom_command(
     TARGET kernel POST_BUILD
 	COMMAND ${DTOOLS} --lo ${HDD_DISK}
 	COMMAND ${DTOOLS} --mnt ${HDD_DISK}
-	COMMAND sudo cp $<TARGET_FILE:kernel> /mnt/loop0/p1/kernel.img
+	COMMAND sudo cp $<TARGET_FILE:kernel> /mnt/${LOOP}/p1/kernel.img
 	COMMAND ${DTOOLS} --umnt ${HDD_DISK}
 	COMMAND ${DTOOLS} --dlo ${HDD_DISK}
     COMMENT "Copying kernel to ${HDD_DISK}"

@@ -9,15 +9,13 @@ static fat_metadata_t fat_meta;
 
 /* Global Driver Parameters */
 
-static inline uint32_t __attribute__((const)) fat_get_cls_sect(uint32_t cls)
-{
-    return ((cls - 2) * fat_bpb.sectors_per_cluster) + fat_meta.first_data_sector;
-}
+// static inline uint32_t __attribute__((const)) fat_get_cls_sect(uint32_t cls)
+// {
+//     return ((cls - 2) * fat_bpb.sectors_per_cluster) + fat_meta.first_data_sector;
+// }
 
 static void fat_load_dir_list(fat_dir_list list, uint16_t offset)
-{
-    _ata_lba_read(fat_meta.partition_lba + fat_meta.first_rootdir_sector + offset, list, 1);
-}
+{ _ata_lba_read(fat_meta.partition_lba + fat_meta.first_rootdir_sector + offset, list, 1); }
 
 void fat_init(uint32_t p_lba)
 {
@@ -53,7 +51,7 @@ void fat_init(uint32_t p_lba)
     fat_meta.first_rootdir_sector = fat_meta.first_data_sector - fat_meta.rootdir_sectors;
 }
 
-int32_t fat_find_entry(const char *filename)
+int32_t fat_find_entry(const char* filename)
 {
     fat_dir_list list;
     uint8_t off = 0;
@@ -61,7 +59,7 @@ int32_t fat_find_entry(const char *filename)
 next_list:
     fat_load_dir_list(list, off++);
     for (size_t i = 0; i < sizeof(list) / sizeof(*list) && list[i].filename[0]; ++i) {
-        if (!strncmp(((char *)&(list[i])), filename, 11))
+        if (!strncmp(((char*)&(list[i])), filename, 11))
             return (list[i].first_cluster_hi << 16) | list[i].first_cluster_lo;
     }
 
@@ -70,7 +68,7 @@ next_list:
     return -1;
 }
 
-uint8_t fat_load_cls_chain(uint32_t clsno, void *dst, size_t size_in_cluster)
+uint8_t fat_load_cls_chain(uint32_t clsno, void* dst, size_t size_in_cluster)
 {
     uint8_t __attribute__((aligned(16))) fat_table[1 * SECT_SIZE];
     uint8_t fat_sect = fat_meta.first_fat_sector + (clsno * 2 / SECT_SIZE);
@@ -88,7 +86,7 @@ uint8_t fat_load_cls_chain(uint32_t clsno, void *dst, size_t size_in_cluster)
 
     /* Load FAT table to determine next step */
     _ata_lba_read(fat_meta.partition_lba + fat_sect, fat_table, 1);
-    clsno = *(uint16_t *)&fat_table[ent_offset];
+    clsno = *(uint16_t*)&fat_table[ent_offset];
 
     if (clsno >= 0xFFF8 /* last cluster */) return FAT_SUCCESSFUL_LOAD;
     else if (clsno == 0xFFF7 /* bad cluster */) return FAT_CORRUPT_CLUSTER;
@@ -99,7 +97,7 @@ uint8_t fat_load_cls_chain(uint32_t clsno, void *dst, size_t size_in_cluster)
      * decrement size of buffer by 1.
      */
     return fat_load_cls_chain(
-        clsno, ((uint8_t *)dst + fat_bpb.sectors_per_cluster * fat_bpb.bytes_per_sector),
+        clsno, ((uint8_t*)dst + fat_bpb.sectors_per_cluster * fat_bpb.bytes_per_sector),
         --size_in_cluster);
 }
 

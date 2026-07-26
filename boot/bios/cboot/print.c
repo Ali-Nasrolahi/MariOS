@@ -1,4 +1,5 @@
 #include "print.h"
+
 #include "x86.h"
 
 typedef struct {
@@ -30,46 +31,44 @@ static void __update_cursor(uint8_t x, uint8_t y)
 static void __putc(char c)
 {
     switch (c) {
-    case '\n':
-        ++_cursor.y;
-        __attribute__((fallthrough));
-    case '\r':
-        _cursor.x = 0;
-        goto skip_writing_on_screen;
-        break;
+        case '\n':
+            ++_cursor.y;
+            __attribute__((fallthrough));
+        case '\r':
+            _cursor.x = 0;
+            goto skip_writing_on_screen;
+            break;
 
-    case '\t':
-        _cursor.x += 4;
-        goto skip_writing_on_screen;
-        break;
+        case '\t':
+            _cursor.x += 4;
+            goto skip_writing_on_screen;
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
     __VIDEO_MEMORY__MAP__[2 * (_cursor.y * __DISPLAY_WIDTH__ + _cursor.x++)] = c;
 
 skip_writing_on_screen:
 
-    if (_cursor.x > __DISPLAY_WIDTH__)
-        __putc('\n');
+    if (_cursor.x > __DISPLAY_WIDTH__) __putc('\n');
 
-    if (_cursor.y > __DISPLAY_HEIGHT__)
-        _cursor.y = _cursor.x = 0;
+    if (_cursor.y > __DISPLAY_HEIGHT__) _cursor.y = _cursor.x = 0;
     __update_cursor(_cursor.x, _cursor.y);
 }
 
 void putc(char c) { __putc(c); }
 
-void puts(char *c)
+void puts(char* c)
 {
     while (*c) putc(*c++);
 }
 
-void clear_screen()
+void clear_screen(void)
 {
     uint16_t pixels = __DISPLAY_HEIGHT__ * __DISPLAY_WIDTH__;
     while (pixels--) __putc(' ');
-    *((uint16_t *)&_cursor) = 0;
+    *((uint16_t*)&_cursor) = 0;
     __enable_cursor(0, 15);
     __update_cursor(0, 0);
 }
