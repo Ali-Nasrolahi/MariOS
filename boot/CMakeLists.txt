@@ -3,7 +3,7 @@ function(target_set_spec tgt dir)
     target_compile_options(
         ${tgt}
         PRIVATE
-        $<$<COMPILE_LANGUAGE:ASM_NASM>:-I${CMAKE_CURRENT_SOURCE_DIR}/asm>
+        $<$<COMPILE_LANGUAGE:ASM_NASM>:-I${CMAKE_SOURCE_DIR}/asm>
     )
     set_target_properties(${tgt}
         PROPERTIES LINK_DEPENDS
