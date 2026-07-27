@@ -12,7 +12,7 @@ DTOOLS		:= ./tools/disk-tools
 all: config build
 
 config:
-	cmake -B build -D CMAKE_BUILD_TYPE=Debug
+	cmake --preset debug
 	@echo -e  "Config Completed\n"
 
 build:

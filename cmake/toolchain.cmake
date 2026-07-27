@@ -1,26 +1,3 @@
-# Target system
-set(CMAKE_SYSTEM_NAME       Generic)
-set(CMAKE_SYSTEM_PROCESSOR  i686)
-
-# Without that flag CMake is not able to pass test compilation check
-set(CMAKE_C_COMPILER_WORKS true)
-set(CMAKE_CXX_COMPILER_WORKS true)
-set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
-
-#
-# Toolchain
-#
-set(CMAKE_C_COMPILER        clang)
-set(CMAKE_CXX_COMPILER      clang++)
-set(CMAKE_ASM_COMPILER      nasm)
-
-set(CMAKE_AR               llvm-ar)
-set(CMAKE_RANLIB           llvm-ranlib)
-set(CMAKE_OBJCOPY          llvm-objcopy)
-set(CMAKE_SIZE             llvm-size)
-set(CMAKE_STRIP            llvm-strip)
-set(CMAKE_NM               llvm-nm)
-
 set(CMAKE_ASM_NASM_LINK_EXECUTABLE
     "<CMAKE_LINKER> <CMAKE_ASM_NASM_LINK_FLAGS> <LINK_FLAGS> <OBJECTS>  -o <TARGET> <LINK_LIBRARIES>"
 )
@@ -51,5 +28,3 @@ set(link_opts
 
 add_compile_options("${compile_opts}")
 add_link_options("${link_opts}")
-
-set(CMAKE_EXPORT_COMPILE_COMMANDS on)
