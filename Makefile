@@ -5,8 +5,7 @@ QEMU		?= qemu-kvm
 GDB			?= gdb
 OUTPUT_IMG	:= build/img/hdd.img
 IMG_TARGET	:= hdd.img
-DD			:= ./tools/dd
-DTOOLS		:= ./tools/disk-tools
+DISK_MGMT		:= ./tools/diskmgmt.sh
 
 
 all: config build
@@ -31,13 +30,13 @@ distclean: clean
 	$(RM) -r build/*
 
 mount:
-	@$(DTOOLS) --lo ${OUTPUT_IMG}
-	@$(DTOOLS) --mnt ${OUTPUT_IMG}
+	@$(DISK_MGMT) --lo ${OUTPUT_IMG}
+	@$(DISK_MGMT) --mnt ${OUTPUT_IMG}
 	@echo "Disk Mounted"
 
 umount:
-	@$(DTOOLS) --umnt ${OUTPUT_IMG}
-	@$(DTOOLS) --dlo ${OUTPUT_IMG}
+	@$(DISK_MGMT) --umnt ${OUTPUT_IMG}
+	@$(DISK_MGMT) --dlo ${OUTPUT_IMG}
 	@echo "Disk Umounted"
 
 run: all

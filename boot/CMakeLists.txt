@@ -42,15 +42,15 @@ target_set_spec(cboot.elf32 cboot/)
 
 add_custom_command(
     TARGET core mbr cboot.elf32 POST_BUILD
-    COMMAND ${DD} --cp $<TARGET_FILE:mbr> ${HDD_DISK}     2> /dev/null
-    COMMAND ${DD} --cp $<TARGET_FILE:core> ${HDD_DISK} 1  2> /dev/null
+    COMMAND ${DISK_MGMT} --cp $<TARGET_FILE:mbr> ${HDD_DISK}     2> /dev/null
+    COMMAND ${DISK_MGMT} --cp $<TARGET_FILE:core> ${HDD_DISK} 1  2> /dev/null
     COMMAND ${CMAKE_OBJCOPY} -O binary
     $<TARGET_FILE:cboot.elf32>
     $<TARGET_FILE_DIR:cboot.elf32>/cboot
-	COMMAND ${DTOOLS} --lo ${HDD_DISK}
-	COMMAND ${DTOOLS} --mnt ${HDD_DISK}
-	COMMAND sudo cp $<TARGET_FILE_DIR:cboot.elf32>/cboot /mnt/${LOOP}/p1/cboot.bin
-	COMMAND ${DTOOLS} --umnt ${HDD_DISK}
-	COMMAND ${DTOOLS} --dlo ${HDD_DISK}
+	COMMAND ${DISK_MGMT} --lo ${HDD_DISK}
+	COMMAND ${DISK_MGMT} --mnt ${HDD_DISK}
+	COMMAND sudo cp $<TARGET_FILE_DIR:cboot.elf32>/cboot /mnt/${LOOP_DEV}/p1/cboot.bin
+	COMMAND ${DISK_MGMT} --umnt ${HDD_DISK}
+	COMMAND ${DISK_MGMT} --dlo ${HDD_DISK}
     COMMENT "Copying bootloader to ${HDD_DISK}"
 )
