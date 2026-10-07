@@ -6,7 +6,7 @@ global _ata_software_reset
 
 ; Read from first hard disk (0x80).
 ; 28-bit PIO Mode: https://wiki.osdev.org/ATA_PIO_Mode#28_bit_PIO
-; Based on : https://wiki.osdev.org/ATA_read/write_sectors#Read_in_LBA_mode
+; Based on: https://wiki.osdev.org/ATA_read/write_sectors#Read_in_LBA_mode
 ; Params:
 ;   eax :   LBA Address
 ;   cl  :   Sectors no. to read
@@ -107,7 +107,7 @@ _ata_lba_read:
 
 ; Write to first hard disk (0x80).
 ; 28-bit PIO Mode: https://wiki.osdev.org/ATA_PIO_Mode#28_bit_PIO
-; Based on : https://wiki.osdev.org/ATA_read/write_sectors#ATA_write_sectors
+; Based on: https://wiki.osdev.org/ATA_read/write_sectors#ATA_write_sectors
 ; Params:
 ;   eax :   LBA Address
 ;   cl  :   Sectors no. to write

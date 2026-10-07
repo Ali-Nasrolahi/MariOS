@@ -104,7 +104,7 @@ uint8_t fat_load_cls_chain(uint32_t clsno, void* dst, size_t size_in_cluster)
 /*
  * TODO
  * I need more delicate approach to remove repeated iteration code.
- * Callbacks needs to more generic, I need to ba ablate to pass list of args
+ * Callbacks need to be more generic; I need to be able to pass a list of arguments
  * to them (maybe by va_list and forwarding args from iterator to callbacks).
  *
  */

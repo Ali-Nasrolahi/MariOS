@@ -7,12 +7,12 @@ bits 16
 ; Which indicates the size the Limit value is scaled by 4KiB blocks, by that
 ; the segment will span the full 4 GiB address space in 32-bit mode.
 ;
-; The only differnce between the two segments is E flag in access byte.
+; The only difference between the two segments is the E flag in the access byte.
 ;  Access Byte: P, S, RW ==> Enabled, DPL, DC, A ==> Disabled
 ;  and E is enabled for gdt_code and disabled for gdt_data.
 ;
 ; Note:
-;   By standard first 8 bytes of gdt should be null and unsued, nevertheless
+;   By standard, the first 8 bytes of the GDT should be null and unused; nevertheless,
 ;   we could just use it for GDT Descriptor instead.
 gdt_start:
 gdt_desc:

@@ -81,7 +81,7 @@ SelectPartition:
     dec cx
     jnz .lp1
 
-;; DEBUG Disalbe user input and use first partition
+;; DEBUG: Disable user input and use the first partition
     ; Wait for user to choose a partition
 ;    mov ah, 0
 ;    int 0x16

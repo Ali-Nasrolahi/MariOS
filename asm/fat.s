@@ -12,15 +12,15 @@ FAT_BASE_ADDR   equ 0x7e00  ; This address is used as base address for loading F
                             ; Metadata means Rootdir, FAT Table and etc which will be overwritten
                             ; multiple times with needed metadata at the time.
 
-; Initilizes necessary fields for other routines.
+; Initializes necessary fields for other routines.
 ; Params:
 ;   bx[in] = selected partition address
 ;
 fat_init:
 .load_partition_table:
     ; NOTE:
-    ;   Further FAT calculation is based on first secotr of
-    ;   selected volume, however LBA uses absoulte address of
+    ;   Further FAT calculation is based on the first sector of
+    ;   the selected volume; however, LBA uses the absolute address of
     ;   our hard disk not the selected volume.
     ;   Therefore, we need to add volume offset to further calculations.
     ;   To make it a little bit easier, let's just save the offset in

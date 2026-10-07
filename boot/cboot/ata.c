@@ -3,7 +3,7 @@
 int8_t ata_lba_read(uint32_t addr, void* buf, uint8_t sect)
 {
     uint8_t status = 0;
-    uint8_t* buf_ = (uint8_t*)buf;  // pinter + offset to original buffer
+    uint8_t* buf_ = (uint8_t*)buf;  // Pointer and offset to the original buffer
 
     outb(0x1f2, sect);
     outb(0x1f3, (uint8_t)addr);
@@ -14,7 +14,7 @@ int8_t ata_lba_read(uint32_t addr, void* buf, uint8_t sect)
 
     for (; sect--;) {
         /*
-         * BSY should clears
+         * BSY should clear
          * Technically, when BSY is set, the other bits in the Status byte are meaningless
          */
         for (status = inb(0x1f7); status & 0x80; status = inb(0x1f7));
@@ -40,7 +40,7 @@ int8_t ata_lba_read(uint32_t addr, void* buf, uint8_t sect)
 int8_t ata_lba_write(uint32_t addr, void* buf, uint8_t sect)
 {
     uint8_t status = 0;
-    uint8_t* buf_ = (uint8_t*)buf;  // pinter + offset to original buffer
+    uint8_t* buf_ = (uint8_t*)buf;  // Pointer and offset to the original buffer
 
     outb(0x1f2, sect);
     outb(0x1f3, (uint8_t)addr);
@@ -51,7 +51,7 @@ int8_t ata_lba_write(uint32_t addr, void* buf, uint8_t sect)
 
     for (; sect--;) {
         /*
-         * BSY should clears
+         * BSY should clear
          * Technically, when BSY is set, the other bits in the Status byte are meaningless
          */
         for (status = inb(0x1f7); status & 0x80; status = inb(0x1f7));

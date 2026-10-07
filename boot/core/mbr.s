@@ -4,18 +4,18 @@
 ;   MBR Bootstrap:
 ;       Loads stage 1.5 into 0:0x0600.
 ;
-;       This bootstrap tries to minimal as possible to fit into MBR
-;       whih leaves us with around 400 bytes, which is not flexible enough
+;       This bootstrap tries to be as minimal as possible to fit into the MBR,
+;       which leaves us with around 400 bytes, which is not flexible enough
 ;       for working with filesystems and partitions. So we try to
 ;       learn from masters and do as GRUB did.  [https://en.wikipedia.org/wiki/GNU_GRUB]
 ;
 ;       Stage 1 (this file) is just a simple bootstrap program to load next stage (stage 1.5)
-;       which resides between MBR and first parttion, aka. 'core.bin'. This method makes it
+;       which resides between the MBR and first partition, aka. 'core.bin'. This method makes it
 ;       a lot easier to maintain and improve.
 ;
-;       Neither stage 1(mbr) nor stage 1.5(core) 'relocate' themselves to 0x0600, on the other hand
-;       mbr loads core into 0x0600 initially. Besides this, core actually useses the partition table
-;       which is already loaded by bios (first sector of HDD), i.e. 0x1be, 0x1ce, 0x1de, 0x1ee of disk.
+;       Neither stage 1 (MBR) nor stage 1.5 (core) 'relocate' themselves to 0x0600; instead,
+;       the MBR loads core into 0x0600 initially. Besides this, core actually uses the partition table
+;       which is already loaded by the BIOS (first sector of HDD), i.e. 0x1be, 0x1ce, 0x1de, 0x1ee of the disk.
 ;
 ; ##############################################################
 ;                       MBR Bootstrap

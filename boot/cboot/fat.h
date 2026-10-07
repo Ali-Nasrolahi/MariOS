@@ -121,7 +121,7 @@ void fat_init(uint32_t p_lba);
  *
  * @param full_filename should be formatted as stated in FAT spec. 8 bytes filename and 3 bytes
  * extension; all in uppercase.
- * @return int32_t positive number if file exits and has data; 0 if file is empty and -1 if not
+ * @return int32_t positive number if the file exists and has data; 0 if the file is empty and -1 if not
  * found.
  */
 int32_t fat_find_entry(const char *full_filename);
