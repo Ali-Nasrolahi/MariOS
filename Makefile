@@ -1,7 +1,7 @@
 # TODO:
 # 	- Create a target for 'ptable.bak'
 #	- Clean up the partitioning and disk creation
-QEMU		?= qemu-kvm
+QEMU		?= qemu-system-i386
 GDB			?= gdb
 OUTPUT_IMG	:= build/img/hdd.img
 IMG_TARGET	:= hdd.img
@@ -44,12 +44,6 @@ run: all
 
 debug: all
 	$(QEMU) -S -s -hda $(OUTPUT_IMG) &
-	$(GDB) \
-		-ex "set confirm off" \
-		-ex "connect-to-qemu" \
-		-ex "add-symbol-file build/boot/bios/cboot.elf32" \
-		-ex "break _main" \
-		-ex "continue" \
-		-ex "set confirm on"
+	$(GDB) -q -x .gdbinit -ex debug-marios
 
 .PHONY: all config build clean
