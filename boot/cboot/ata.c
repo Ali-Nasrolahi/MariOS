@@ -1,5 +1,7 @@
 #include "ata.h"
 
+#include "x86.h"
+
 int8_t ata_lba_read(uint32_t addr, void* buf, uint8_t sect)
 {
     uint8_t status = 0;

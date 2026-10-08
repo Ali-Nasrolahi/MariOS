@@ -2,6 +2,8 @@ ENTRY(_kmain)
 
 SECTIONS
 {
+    . = 0x00100000;
+
     .text :
     {
         __text_begin = .;

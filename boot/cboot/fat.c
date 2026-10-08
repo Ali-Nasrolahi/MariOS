@@ -1,6 +1,7 @@
 #include "fat.h"
 
 #include "print.h"
+#include "x86.h"
 
 /* Global Driver Parameters */
 

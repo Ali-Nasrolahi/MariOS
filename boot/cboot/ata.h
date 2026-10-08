@@ -1,7 +1,6 @@
 #pragma once
 
-#include "x86.h"
-
+#include <stdint.h>
 #define SECT_SIZE (512)
 
 /*
@@ -13,10 +12,10 @@
  */
 
 /* C Implementations */
-int8_t ata_lba_read(uint32_t addr, void *buf, uint8_t sect);
-int8_t ata_lba_write(uint32_t addr, void *buf, uint8_t sect);
+int8_t ata_lba_read(uint32_t addr, void* buf, uint8_t sect);
+int8_t ata_lba_write(uint32_t addr, void* buf, uint8_t sect);
 
 /* Assembly Implementations */
-int32_t __attribute__((cdecl)) _ata_lba_read(uint32_t addr, void *buf, uint8_t sect);
-int32_t __attribute__((cdecl)) _ata_lba_write(uint32_t addr, void *buf, uint8_t sect);
+int32_t __attribute__((cdecl)) _ata_lba_read(uint32_t addr, void* buf, uint8_t sect);
+int32_t __attribute__((cdecl)) _ata_lba_write(uint32_t addr, void* buf, uint8_t sect);
 void __attribute__((cdecl)) _ata_software_reset(void);

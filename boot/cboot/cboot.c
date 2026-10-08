@@ -1,7 +1,8 @@
 #include "fat.h"
 #include "print.h"
+#include "x86.h"
 
-void* buff = (void*)0x00100000;
+void (*_kmain)(void) = (void (*)(void))0x00100000;
 void __attribute__((cdecl)) _main(uint32_t boot_partition_addr)
 {
     /* Welcome */
@@ -14,11 +15,15 @@ void __attribute__((cdecl)) _main(uint32_t boot_partition_addr)
     fat_init(boot_partition_addr);
 
     /* Load the kernel */
-    if (fat_load_cls_chain(fat_find_entry("KERNEL  IMG"), buff, 10) == FAT_SUCCESSFUL_LOAD) {
-        puts("Kernel loaded successfully\n");
-    } else {
+    if (fat_load_cls_chain(fat_find_entry("KERNEL  IMG"), (void*)_kmain, 10)) {
         puts("Kernel loading failed!!!\n");
+        return;
     }
 
-    return;
+    puts("Kernel loaded successfully\n");
+
+    _kmain();
+
+    puts("[attention] returned from kernel, this should not happen!!\n");
+    halt();
 }

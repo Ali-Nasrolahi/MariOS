@@ -13,9 +13,10 @@ target_link_options(kernel PRIVATE -T${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld -Map=
 
 add_custom_command(
     TARGET kernel POST_BUILD
+	COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:kernel> $<TARGET_FILE_DIR:kernel>/kernel.bin
 	COMMAND ${DISK_MGMT} --lo ${HDD_DISK}
 	COMMAND ${DISK_MGMT} --mnt ${HDD_DISK}
-	COMMAND sudo cp $<TARGET_FILE:kernel> /mnt/${LOOP_DEV}/p1/kernel.img
+	COMMAND sudo cp $<TARGET_FILE_DIR:kernel>/kernel.bin /mnt/${LOOP_DEV}/p1/kernel.img
 	COMMAND ${DISK_MGMT} --umnt ${HDD_DISK}
 	COMMAND ${DISK_MGMT} --dlo ${HDD_DISK}
     COMMENT "Copying kernel to ${HDD_DISK}"
