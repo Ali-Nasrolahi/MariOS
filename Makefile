@@ -1,11 +1,8 @@
-# TODO:
-# 	- Create a target for 'ptable.bak'
-#	- Clean up the partitioning and disk creation
 QEMU		?= qemu-system-i386
 GDB			?= gdb
 OUTPUT_IMG	:= build/img/hdd.img
 IMG_TARGET	:= hdd.img
-DISK_MGMT		:= ./tools/diskmgmt.sh
+DISK_MGMT	:= ./tools/diskmgmt.sh
 
 
 all: config build
